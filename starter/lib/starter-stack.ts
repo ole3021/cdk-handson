@@ -1,7 +1,8 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
+import { HitCounter } from './hitcounter';
 
 export class StarterStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,8 +14,12 @@ export class StarterStack extends Stack {
       handler: 'hello.handler'
     });
 
+    const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
+      downstream: hello
+    });
+
     new LambdaRestApi(this, 'Endpoint', {
-      handler: hello
+      handler: helloWithCounter.handler
     });
   }
 }
