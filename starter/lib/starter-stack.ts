@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import { Function, Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { HitCounter } from './hitcounter';
+import { TableViewer } from 'cdk-dynamo-table-viewer';
 
 export class StarterStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -11,7 +12,7 @@ export class StarterStack extends Stack {
     const hello = new Function(this, 'HelloHandler', {
       runtime: Runtime.NODEJS_14_X,
       code: Code.fromAsset('lambda'),
-      handler: 'hello.handler'
+      handler: 'hello.handler',
     });
 
     const helloWithCounter = new HitCounter(this, "HelloHitCounter", {
@@ -21,5 +22,11 @@ export class StarterStack extends Stack {
     new LambdaRestApi(this, 'Endpoint', {
       handler: helloWithCounter.handler
     });
+
+    new TableViewer(this, 'ViewHitCounter', {
+      title: 'Hits Table',
+      table:  helloWithCounter.table,
+      sortBy: 'path'
+    })
   }
 }
